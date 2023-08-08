@@ -95,3 +95,31 @@ void MNIST::load_images(unsigned char *images, int count, const char *file) {
 int main() {
     MNIST nn;
 }
+
+/*
+Neural network:
+Input layer: 784 neurons
+Hidden layer: 100 neurons
+Output layer: 10 neurons
+
+Forward propagation:
+hidden_layer           = hidden_weights * input_layer + hidden_bias
+activated_hidden_layer = sigmoid(hidden_layer)
+output_layer           = output_weights * activated_hidden_layer + output_bias
+activated_output_layer = softmax(output_layer)
+
+Backward propagation:
+loss = mean_squared_error(target_output, activated_output_layer)
+
+output_gradient         = activated_output_layer - target_output
+output_weights_gradient = output_gradient * activated_hidden_layer
+
+hidden_gradient         = (transpose(output_weights) * output_gradient) * (activated_hidden_layer * (1 - activated_hidden_layer))
+hidden_weights_gradient = hidden_gradient * input_layer
+
+output_weights -= learning_rate * output_weights_gradient
+output_bias    -= learning_rate * output_gradient
+
+hidden_weights -= learning_rate * hidden_weights_gradient
+hidden_bias    -= learning_rate * hidden_gradient
+*/
