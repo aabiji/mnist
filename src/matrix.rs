@@ -9,6 +9,15 @@ pub struct Matrix {
 }
 
 impl Matrix {
+    pub fn new(x: i32, y: i32) -> Matrix {
+        Matrix{
+            rows: x,
+            cols: y,
+            size: (x * y) as usize,
+            data: vec![0.0; (x * y) as usize],
+        }
+    }
+
     fn index(&self, x: i32, y: i32) -> usize {
         return (y * self.cols + x) as usize;
     }
@@ -21,34 +30,40 @@ impl Matrix {
         return sum;
     }
 
-    pub fn debug(&self) {
-        println!("{}x{}", self.cols, self.rows);
-        for y in 0..self.rows {
-            print!("[ ");
-            for x in 0..self.cols {
-                let i = self.index(x, y);
-                print!("{} ", self.data[i]);
-            }
-            print!("]\n");
+    pub fn sigmoid(&self) -> Matrix {
+        let mut result = self.clone();
+
+        for i in 0..self.size {
+            result.data[i] = 1.0 / (1.0 + E.powf(-result.data[i]));
         }
-        print!("\n");
+
+        return result;
     }
 
-    pub fn sigmoid(&mut self) {
-        for i in 0..self.size {
-            self.data[i] = 1.0 / (1.0 + E.powf(-self.data[i]));
+    // The activation gradient for sigmoid
+    pub fn sigmoidg(&self) -> Matrix {
+        let mut result = self.clone();
+
+        for i in 0..result.size {
+            result.data[i] = result.data[i] * (1.0 - result.data[i]);
         }
+
+        return result;
     }
 
-    pub fn softmax(&mut self) {
-        for i in 0..self.size {
-            self.data[i] = E.powf(self.data[i]);
+    pub fn softmax(&self) -> Matrix {
+        let mut result = self.clone();
+
+        for i in 0..result.size {
+            result.data[i] = E.powf(result.data[i]);
         }
 
-        let sum = self.sum();
-        for i in 0..self.size {
-            self.data[i] /= sum;
+        let sum = result.sum();
+        for i in 0..result.size {
+            result.data[i] /= sum;
         }
+
+        return result;
     }
 
     pub fn mean_squared_error(&mut self, target: &Matrix) -> f64 {
@@ -62,7 +77,8 @@ impl Matrix {
         return error * (1.0 / self.size as f64);
     }
 
-    pub fn transpose(&mut self) -> Matrix {
+    // Matrix transpose
+    pub fn t(&self) -> Matrix {
         let mut result = Matrix{rows: self.cols,
                                 cols: self.rows,
                                 size: self.size,
@@ -80,7 +96,7 @@ impl Matrix {
     }
 }
 
-pub fn subtract(a: Matrix, b: Matrix) -> Matrix {
+pub fn sub(a: &Matrix, b: &Matrix) -> Matrix {
     assert!(a.size == b.size);
     let mut result = Matrix{rows: a.rows, 
                             cols: a.cols, 
@@ -97,20 +113,54 @@ pub fn subtract(a: Matrix, b: Matrix) -> Matrix {
     return result;
 }
 
-pub fn scale(a: Matrix, b: i32) -> Matrix {
+pub fn add(a: &Matrix, b: &Matrix) -> Matrix {
+    assert!(a.size == b.size);
+    let mut result = Matrix{rows: a.rows, 
+                            cols: a.cols, 
+                            size: a.size,
+                            data: vec![0.0; a.size]};
+
+    for y in 0..result.rows {
+        for x in 0..result.cols {
+            let i = result.index(x, y);
+            result.data[i] = a.data[i] + b.data[i];
+        }
+    }
+
+    return result;
+}
+
+pub fn mul(a: &Matrix, b: &Matrix) -> Matrix {
+    assert!(a.size == b.size);
+    let mut result = Matrix{rows: a.rows, 
+                            cols: a.cols, 
+                            size: a.size,
+                            data: vec![0.0; a.size]};
+
+    for y in 0..result.rows {
+        for x in 0..result.cols {
+            let i = result.index(x, y);
+            result.data[i] = a.data[i] * b.data[i];
+        }
+    }
+
+    return result;
+}
+
+pub fn scale(a: &Matrix, b: f64) -> Matrix {
     let mut result = Matrix{rows: a.rows, 
                             cols: a.cols, 
                             size: a.size,
                             data: vec![0.0; a.size]};
 
     for i in 0..result.size {
-        result.data[i] = a.data[i] * b as f64;
+        result.data[i] = a.data[i] * b;
     }
 
     return result;
 }
 
-pub fn dot(a: Matrix, b: Matrix) -> Matrix {
+pub fn dot(a: &Matrix, b: &Matrix) -> Matrix {
     assert!(a.cols == b.rows);
     let mut result = Matrix{size: 0,
                             cols: b.cols,
