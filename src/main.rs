@@ -1,4 +1,6 @@
+mod load;
 mod matrix;
+use load::*;
 use matrix::*;
 
 /*
@@ -83,6 +85,12 @@ impl NeuralNetwork {
 }
 
 fn main() {
+    let _test_data = load_dataset("data/testing.idx3-ubyte");
+    let _test_labels = load_label("data/testing-labels.idx1-ubyte");
+
+    let _train_data = load_dataset("data/training.idx3-ubyte");
+    let _train_labels = load_label("data/training-labels.idx1-ubyte");
+
     let mut nn = NeuralNetwork::new();
     nn.train_step();
 }
