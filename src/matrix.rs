@@ -1,3 +1,4 @@
+use rand::Rng;
 use std::f64::consts::E;
 
 #[derive (Debug, Clone)]
@@ -9,15 +10,6 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    pub fn new(x: i32, y: i32) -> Matrix {
-        Matrix{
-            rows: x,
-            cols: y,
-            size: (x * y) as usize,
-            data: vec![0.0; (x * y) as usize],
-        }
-    }
-
     fn index(&self, x: i32, y: i32) -> usize {
         return (y * self.cols + x) as usize;
     }
@@ -28,6 +20,38 @@ impl Matrix {
             sum += self.data[i];
         }
         return sum;
+    }
+
+    pub fn new(x: i32, y: i32) -> Matrix {
+        Matrix{
+            rows: x,
+            cols: y,
+            size: (x * y) as usize,
+            data: vec![0.0; (x * y) as usize],
+        }
+    }
+
+    pub fn init(x: i32, y: i32) -> Matrix {
+        let mut m = Matrix::new(x, y);
+        let mut rng = rand::thread_rng();
+
+        for i in 0..m.size {
+            m.data[i] = rng.gen_range(0.01..0.99);
+        }
+        return m;
+    }
+
+    // Returns the index of the highest value
+    pub fn max(&self) -> i32 {
+        let mut max = 0.0;
+        let mut index = 0;
+        for i in 0..self.size {
+            if self.data[i] > max {
+                max = self.data[i];
+                index = i as i32;
+            }
+        }
+        return index;
     }
 
     pub fn sigmoid(&self) -> Matrix {

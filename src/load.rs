@@ -31,16 +31,16 @@ pub fn load_label(path: &str) -> Vec<u8> {
     return labels;
 }
 
-pub fn load_dataset(path: &str) -> Vec<Vec<u8>> {
+pub fn load_dataset(path: &str) -> Vec<Vec<f64>> {
     let file = read_file(path);
     let (img_count, mut i) = read_big_endian(&file, 4);
     i += 8; // Skip row and column count which should be 28
 
-    let mut imgs: Vec<Vec<u8>> = Vec::new();
+    let mut imgs: Vec<Vec<f64>> = Vec::new();
     for _ in 0..img_count {
-        let mut temp: Vec<u8> = Vec::new();
+        let mut temp: Vec<f64> = Vec::new();
         for _ in 0..784 {
-            temp.push(file[i as usize]);
+            temp.push(file[i as usize] as f64);
             i += 1;
         }
         imgs.push(temp);
