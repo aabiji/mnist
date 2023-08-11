@@ -31,7 +31,7 @@ impl NeuralNetwork {
         // 100 neuron hidden layer and a 10 neuron output layer
         NeuralNetwork {
             cost: 0.0,
-            epochs: 10,
+            epochs: 3,
             correct: 0,
             learn: 0.01,
             current_sample: 0,
@@ -39,7 +39,7 @@ impl NeuralNetwork {
             train_accuracy: 0.0,
             test_samples:  10000,
             train_samples: 60000,
-            batch_size: 60000 / 600,
+            batch_size: 60000 / 60,
             h_weights:    Matrix::init(100, 784),
             h_bias:       Matrix::init(100, 1),
             o_weights:    Matrix::init(10, 100),
@@ -105,20 +105,24 @@ impl NeuralNetwork {
 
     fn train(&mut self) {
         println!("Training...");
+        let mut average = 0.0;
         let batches = self.train_samples / self.batch_size;
 
         for e in 0..self.epochs {
+            println!("Epoch: {}", e);
             for b in 0..batches {
+                println!("Batch: {}", b);
                 for _ in 0..self.batch_size {
                     self.predict(true);
                 }
-                println!("Batch: {}", b);
             }
             self.current_sample = 0;
-            println!("Epoch #{}", e);
+            average += (((self.correct as f32) / (self.train_samples as f32)) * 100.0);
         }
 
-        self.train_accuracy = (self.correct / self.train_samples) as f32;
+        self.train_accuracy = average / (self.epochs as f32);
+        println!("{}% training accuracy: {}/{} correct", 
+                 self.train_accuracy, self.correct, self.train_samples);
     }
 
     fn test(&mut self) {
@@ -130,15 +134,8 @@ impl NeuralNetwork {
             self.predict(false);
         }
 
-        self.test_accuracy = (self.correct / self.test_samples) as f32;
-    }
-
-    fn output_metrics(&self) {
-        println!("{} cost", self.cost);
-        println!("{}% testing accuracy", self.test_accuracy);
-        println!("{}% training accuracy", self.train_accuracy);
-        println!("{} epochs | batch size of {}", self.epochs, self.batch_size);
-        println!("{} training samples | {} testing samples", self.train_samples, self.test_samples);
+        self.test_accuracy = ((self.correct as f32) / (self.test_samples as f32)) * 100.0;
+        println!("{}% testing accuracy: {}/{} correct", self.test_accuracy, self.correct, self.test_samples);
     }
 }
 
@@ -146,5 +143,4 @@ fn main() {
     let mut nn = NeuralNetwork::new();
     nn.train();
     nn.test();
-    nn.output_metrics();
 }
