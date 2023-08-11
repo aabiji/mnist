@@ -5,24 +5,24 @@ mod matrix;
 use matrix::*;
 
 struct NeuralNetwork {
-    test_labels:  Vec<u8>,
-    train_labels: Vec<u8>,
-    test_data:  Vec<Vec<f64>>,
-    train_data: Vec<Vec<f64>>,
-    test_samples: i32,
-    train_samples: i32,
-    current_sample: usize, 
-    train_accuracy: f32,
-    test_accuracy: f32,
     epochs: i32,
     batch_size: i32,
-    cost: f64,
+    cost:    f64,      // Cost metric
+    learn:   f64,      // Learning rate
     correct: i32,      // Number of predictions that were correct
-    learn: f64,        // Learning rate
     h_bias: Matrix,    // Hidden layer biases
     h_weights: Matrix, // Hidden layer weights
     o_bias: Matrix,    // Output layer biases
     o_weights: Matrix, // Output layer weights
+    test_samples:  i32,
+    train_samples: i32,
+    test_accuracy:  f32,
+    train_accuracy: f32,
+    current_sample: usize, 
+    test_labels:  Vec<u8>,
+    train_labels: Vec<u8>,
+    test_data:    Vec<Vec<f64>>,
+    train_data:   Vec<Vec<f64>>,
 }
 
 impl NeuralNetwork {
@@ -32,11 +32,11 @@ impl NeuralNetwork {
         NeuralNetwork {
             cost: 0.0,
             epochs: 10,
-            learn: 0.01,
             correct: 0,
-            train_accuracy: 0.0,
-            test_accuracy: 0.0,
+            learn: 0.01,
             current_sample: 0,
+            test_accuracy: 0.0,
+            train_accuracy: 0.0,
             test_samples:  10000,
             train_samples: 60000,
             batch_size: 60000 / 600,
@@ -107,13 +107,15 @@ impl NeuralNetwork {
         println!("Training...");
         let batches = self.train_samples / self.batch_size;
 
-        for _ in 0..self.epochs {
-            for _ in 0..batches {
+        for e in 0..self.epochs {
+            for b in 0..batches {
                 for _ in 0..self.batch_size {
                     self.predict(true);
                 }
+                println!("Batch: {}", b);
             }
             self.current_sample = 0;
+            println!("Epoch #{}", e);
         }
 
         self.train_accuracy = (self.correct / self.train_samples) as f32;
