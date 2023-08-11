@@ -8,5 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run
-        run: chmod +x mnist && ./mnist
+        run: ls && chmod +x mnist && ./mnist
 
