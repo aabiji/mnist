@@ -1,8 +1,9 @@
 mod load;
 use load::*;
-
 mod matrix;
 use matrix::*;
+mod display;
+use display::*;
 
 struct NeuralNetwork {
     epochs: i32,
@@ -23,6 +24,7 @@ struct NeuralNetwork {
     train_labels: Vec<u8>,
     test_data:    Vec<Vec<f64>>,
     train_data:   Vec<Vec<f64>>,
+    test_predictions: Vec<u8>,
 }
 
 impl NeuralNetwork {
@@ -44,6 +46,7 @@ impl NeuralNetwork {
             h_bias:       Matrix::init(100, 1),
             o_weights:    Matrix::init(10, 100),
             o_bias:       Matrix::init(10, 1),
+            test_predictions: vec![0;10000],
             test_data:    load_dataset("data/testing.idx3-ubyte"),
             test_labels:  load_label("data/testing-labels.idx1-ubyte"),
             train_data:   load_dataset("data/training.idx3-ubyte"),
@@ -99,6 +102,9 @@ impl NeuralNetwork {
         if predicted == class as i32 {
             self.correct += 1;
         }
+        if !training {
+            self.test_predictions[self.current_sample] = predicted as u8;
+        }
 
         self.current_sample += 1;
     }
@@ -117,7 +123,7 @@ impl NeuralNetwork {
                 }
             }
             self.current_sample = 0;
-            average += (((self.correct as f32) / (self.train_samples as f32)) * 100.0);
+            average += ((self.correct as f32) / (self.train_samples as f32)) * 100.0;
         }
 
         self.train_accuracy = average / (self.epochs as f32);
@@ -134,13 +140,17 @@ impl NeuralNetwork {
             self.predict(false);
         }
 
-        self.test_accuracy = ((self.correct as f32) / (self.test_samples as f32)) * 100.0;
+        self.test_accuracy = (self.correct as f32) / (self.test_samples as f32) * 100.0;
         println!("{}% testing accuracy: {}/{} correct", self.test_accuracy, self.correct, self.test_samples);
     }
 }
 
 fn main() {
-    let mut nn = NeuralNetwork::new();
-    nn.train();
-    nn.test();
+    let mut net = NeuralNetwork::new();
+    net.train();
+    net.test();
+
+    let mut display = Display::new();
+    display.render_digit(net.test_data.clone(), net.test_labels.clone(),
+                         net.test_predictions.clone(), net.test_samples);
 }

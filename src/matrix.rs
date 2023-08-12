@@ -10,7 +10,7 @@ pub struct Matrix {
 }
 
 impl Matrix {
-    fn index(&self, x: i32, y: i32) -> usize {
+    pub fn index(&self, x: i32, y: i32) -> usize {
         return (y * self.cols + x) as usize;
     }
 
