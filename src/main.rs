@@ -33,7 +33,7 @@ impl NeuralNetwork {
         // 100 neuron hidden layer and a 10 neuron output layer
         NeuralNetwork {
             cost: 0.0,
-            epochs: 3,
+            epochs: 10,
             correct: 0,
             learn: 0.01,
             current_sample: 0,
